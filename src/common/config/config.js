@@ -3,37 +3,37 @@ module.exports = {
     default_module: 'api',
 	port: 8360, //服务端口，可自定义
     weixin: {
-        appid: 'wx7af111110000000', // 小程序 appid
-        secret: 'cb8e5adce569f9bddce5b8123123e1115aaddce505', // 小程序密钥
-        mch_id: '15988888888', // 商户帐号ID
-        partner_key: 'asdasdasdasdasdasdasd', // 微信支付密钥
-        notify_url: 'https://www.您的域名.com/api/pay/notify' // 微信支付异步通知
+        appid: 'wx6fdc7d708ff1bddd', // 小程序 appid
+        secret: 'dedd85e4ee88998c8d8091ccdc8f5b1c', // 小程序密钥
+        mch_id: '1649519306', // 商户帐号ID
+        partner_key: 'Ruizhihenhshengwukeji60560560511', // 微信支付密钥
+        notify_url: 'https://api.chifengda.com/api/pay/notify' // 微信支付异步通知
     },
     express: {
         // 已废弃，之后考虑改回来，做成和阿里云的物流查询可以切换，方便大家的使用
         // 免费的，但是顺丰的话，要配合快递鸟的电子面单
         // 快递物流信息查询使用的是快递鸟接口，申请地址：http://www.kdniao.com/ 
-        appid: '12312312', // 对应快递鸟用户后台 用户ID
-        appkey: '123123123123123123123123', // 对应快递鸟用户后台 API key
+        appid: '1808508', // 对应快递鸟用户后台 用户ID
+        appkey: 'a047de06-f76c-40ce-a10e-ec21447c0815', // 对应快递鸟用户后台 API key
         request_url: 'http://api.kdniao.com/Ebusiness/EbusinessOrderHandle.aspx'
     },
    mianexpress:{
-        appid: '123123', // 对应快递鸟用户后台 用户ID
-        appkey: '123123-4e61236-94cb5297309a', // 对应快递鸟用户后台 API key
+        appid: '1808508', // 对应快递鸟用户后台 用户ID
+        appkey: 'a047de06-f76c-40ce-a10e-ec21447c0815', // 对应快递鸟用户后台 API key
         request_url: 'http://testapi.kdniao.com:8081/api/EOrderService',
         print_url: 'http://sandboxapi.kdniao.com:8080/kdniaosandbox/gateway/exterfaceInvoke.json',
         ip_server_url:'http://www.kdniao.com/External/GetIp.aspx'
     },
     qiniu: {
-        access_key: 'asdlakjsdlajlajsdlas',      // 在七牛密钥管理中获取
-        secret_key: 'alskdjalksjdlasjdlajsd',    // 在七牛密钥管理中获取
+        access_key: 'ge4BmjAnAVb22kyCv0w0BuX5GTTnVVX_yUtAV65D',      // 在七牛密钥管理中获取
+        secret_key: 'sobEurnZaEyUPJzDY5MtP6Nrs_-j_ibQkiD9Ncbv',    // 在七牛密钥管理中获取
         bucket: 'bucketname',                    // 请填自己的bucket的名称
         domain: 'domain/'                         // 请填自己的domain域名
     },
     // 在七牛新建一个https的空间，这个是用来存储分享图片的https图片，对应的是goods表中的https_pic_url
     qiniuHttps: {
-        access_key: 'asdlakjsdlajlajsdlasasdla', // 在七牛密钥管理中获取
-        secret_key: 'aaaaaaaaaaasdasdasdasd', // 在七牛密钥管理中获取
+        access_key: 'ge4BmjAnAVb22kyCv0w0BuX5GTTnVVX_yUtAV65D', // 在七牛密钥管理中获取
+        secret_key: 'sobEurnZaEyUPJzDY5MtP6Nrs_-j_ibQkiD9Ncbv', // 在七牛密钥管理中获取
         bucket: 'bucketname', // 自己设置的
         domain: 'domain/', // 自己设置，例如：'http://img.你的域名.com/',别忘了这个”/“
         // https://developer.qiniu.com/kodo/manual/1671/region-endpoint
