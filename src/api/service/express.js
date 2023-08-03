@@ -136,7 +136,16 @@ module.exports = class extends think.Service {
             if (think.isEmpty(requestResult)) {
                 return expressInfo;
             }
-            expressInfo = this.parseMianExpressResult(requestResult);           
+            expressInfo = this.parseMianExpressResult(requestResult);
+            if(expressInfo.code=='1'){
+                //获取电子面单
+               let mian= this.jituDianZiMianDan(expressInfo.data.billCode);
+                if(mian.code&&mian.code=='1'){
+                    console.log(mian);
+                    expressInfo=mian.data;
+                }
+            }
+
             return expressInfo;
         } catch (err) {
             return expressInfo;
@@ -156,6 +165,52 @@ module.exports = class extends think.Service {
     jituDataSign() {
         let miStr=think.md5(think.config('jitu.customerPwd')+'jadada236t2').toUpperCase();
         return Buffer.from(think.md5(think.config('jitu.customerNum') + miStr + think.config('jitu.privateKey'))).toString('base64');
+    }
+
+    //极兔电子面单
+    async jituDianZiMianDan(billCode){
+        let mian={};
+        let data={
+            billCode:billCode,
+            customerCode:think.config('jitu.customerNum'),
+            isPrivacyFlag:true,
+            noodleSpecification:1,// 1：76*130mm
+        }
+        // 进行编码，签名
+        const fromData = this.jituFromData(data);
+        if (think.isEmpty(fromData)) {
+            return false;
+        }
+
+        let nostr=this.jituDataSign();
+        let timestamp = Date.now();
+
+        // 请求的参数设置
+        const sendOptions = {
+            method: 'POST',
+            url: think.config('jitu.printOrderUrl'),
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+                'apiAccount': think.config('jitu.apiAccount'),
+                'digest': nostr,
+                'timestamp':timestamp
+            },
+            form: fromData
+        };
+        // post请求
+        try {
+            const requestResult = await rp(sendOptions);
+            if (think.isEmpty(requestResult)) {
+                return mian;
+            }
+            mian = this.parseMianExpressResult(requestResult);
+            if(expressInfo.code!='1'){
+                return mian;
+            }
+            return mian;
+        } catch (err) {
+            return mian;
+        }
     }
 
     //************** 极兔 END ************/
