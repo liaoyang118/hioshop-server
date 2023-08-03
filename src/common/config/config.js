@@ -47,4 +47,10 @@ module.exports = {
 	templateId:{
 		deliveryId:'w6AMCJ0nVWTsFasdasdgnlNlmCf9TTDmG6_U' // 模板id。在订阅消息里设置好后就可以得到
 	},
+    jitu:{
+        apiAccount:'554602859803443215',
+        privateKey:'1e7684ba015349ae90c8bcc94891920e',
+        customerCode:'J00864418456',
+        customerPwd:'ShengWu605'
+    }
 };

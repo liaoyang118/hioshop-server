@@ -4,14 +4,13 @@ module.exports = class extends think.Controller {
 		const token = this.ctx.header['x-hioshop-token'] || '';
 		const tokenSerivce = think.service('token', 'api');
 		think.userId = tokenSerivce.getUserId(token);
-		
-		console.log('=========='+think.userId);
+
 	}
 	/**
 	 * 获取时间戳
 	 * @returns {Number}
 	 */
-	getTime() {
+	getTime() {2`p`
 		return parseInt(Date.now() / 1000);
 	}
 	/**
