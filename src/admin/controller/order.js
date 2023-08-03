@@ -421,6 +421,61 @@ module.exports = class extends Base {
         const latestExpressInfo = await this.model('order_express').printExpress();
         return this.success(latestExpressInfo);
     }
+
+    async getJituMianExpressAction() {
+        const orderId = this.post('orderId');
+        const sender = this.post('sender');
+        const receiver = this.post('receiver');
+        const expressType = this.post('expressType');
+
+        console.log(orderId);
+        console.log(sender);
+        console.log(receiver);
+        let senderOptions = sender.senderOptions;
+        let receiveOptions = receiver.receiveOptions;
+        let senderInfo = {
+            Name: sender.name,
+            Tel: sender.mobile,
+            ProvinceName: await this.model('region').where({
+                id: senderOptions[0]
+            }).getField('name', true),
+            CityName: await this.model('region').where({
+                id: senderOptions[1]
+            }).getField('name', true),
+            ExpAreaName: await this.model('region').where({
+                id: senderOptions[2]
+            }).getField('name', true),
+            Address: sender.address
+        };
+        let receiverInfo = {
+            Name: receiver.name,
+            Tel: receiver.mobile,
+            ProvinceName: await this.model('region').where({
+                id: receiveOptions[0]
+            }).getField('name', true),
+            CityName: await this.model('region').where({
+                id: receiveOptions[1]
+            }).getField('name', true),
+            ExpAreaName: await this.model('region').where({
+                id: receiveOptions[2]
+            }).getField('name', true),
+            Address: receiver.address
+        };
+        // 每次重新生成一次订单号，这样，不会出现已经下过单的情况了。
+        const latestExpressInfo = await this.model('order_express').getJituMianExpress(orderId, senderInfo, receiverInfo, expressType);
+        console.log('lastExpressInfo++++++++++++++++++++++');
+        console.log(latestExpressInfo);
+        if (latestExpressInfo.ResultCode == 100) {
+            // 获取快递单号成功，然后存入order_express中
+            this.orderExpressAdd(latestExpressInfo, orderId)
+        }
+        return this.success({
+            latestExpressInfo: latestExpressInfo,
+            sender: senderInfo,
+            receiver: receiverInfo
+        });
+    }
+
     async getMianExpressAction() {
         const orderId = this.post('orderId');
         const sender = this.post('sender');

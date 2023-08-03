@@ -103,8 +103,70 @@ module.exports = class extends think.Service {
         }
         return expressInfo;
     }
+    //************** 极兔 START************/
+    //极兔下单
+    async jituExpress(data = {}) {
+
+        // 从前台传过来的数据
+        let expressInfo = data;
+        // 进行编码，签名
+        const fromData = this.jituFromData(data);
+        if (think.isEmpty(fromData)) {
+            return expressInfo;
+        }
+
+        let nostr=this.jituDataSign();
+        let timestamp = Date.now();
+
+        // 请求的参数设置
+        const sendOptions = {
+            method: 'POST',
+            url: think.config('jitu.orderUrl'),
+            headers: {
+                'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+                'apiAccount': think.config('jitu.apiAccount'),
+                'digest': nostr,
+                'timestamp':timestamp
+            },
+            form: fromData
+        };
+        // post请求
+        try {
+            const requestResult = await rp(sendOptions);
+            if (think.isEmpty(requestResult)) {
+                return expressInfo;
+            }
+            expressInfo = this.parseMianExpressResult(requestResult);           
+            return expressInfo;
+        } catch (err) {
+            return expressInfo;
+        }
+    }
+
+    //转换表单数据
+    jituFromData(data) {
+        const requestData = JSON.stringify(data); // data：post进来的 // JavaScript 值转换为 JSON 字符串。
+        const fromData = {
+            bizContent: encodeURI(requestData)
+        };
+        return fromData;
+    }
+
+    //签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
+    jituDataSign() {
+        let miStr=think.md5(think.config('jitu.customerPwd')+'jadada236t2').toUpperCase();
+        return Buffer.from(think.md5(think.config('jitu.customerNum') + miStr + think.config('jitu.privateKey'))).toString('base64');
+    }
+
+    //************** 极兔 END ************/
+
+
+
     // 电子面单开始
     async mianExpress(data = {}) {
+
+        console.log('====>api express<========')
+
         // 从前台传过来的数据
         let expressInfo = data;
         // 进行编码，签名

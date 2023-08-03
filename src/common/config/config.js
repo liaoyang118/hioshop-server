@@ -44,6 +44,14 @@ module.exports = {
         url:'http://wuliu.market.alicloudapi.com/kdi', //阿里云的物流查询api，收费的
         appcode: 'asldjalsjdlasjdla' ,// 阿里云后台获取
     },
+    jitu:{
+        apiAccount:'178337126125932605',
+        privateKey:'0258d71b55fc45e3ad7a7f38bf4b201a',
+        customerNum:'J00864418456',
+        customerPwd:'ShengWu605',
+        orderUrl:'https://uat-openapi.jtexpress.com.cn/webopenplatformapi/api/order/addOrder?uuid=891262b9a01d4818a9e9845c8f52e63e',
+        printOrderUrl:'https://uat-openapi.jtexpress.com.cn/webopenplatformapi/api/order/printOrder?uuid=891262b9a01d4818a9e9845c8f52e63e'
+    },
 	templateId:{
 		deliveryId:'w6AMCJ0nVWTsFasdasdgnlNlmCf9TTDmG6_U' // 模板id。在订阅消息里设置好后就可以得到
 	},

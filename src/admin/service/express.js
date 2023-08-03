@@ -105,6 +105,9 @@ module.exports = class extends think.Service {
     }
     // 电子面单开始
     async mianExpress(data = {}) {
+
+        console.log('====>admin express<========')
+
         // 从前台传过来的数据
         let expressInfo = data;
         // 进行编码，签名
