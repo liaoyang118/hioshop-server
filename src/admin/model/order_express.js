@@ -171,7 +171,7 @@ module.exports = class extends think.Model {
         let MonthCode = ''; // 圆通需要浙江省舟山市普陀区沈家门分部
         let GoodsName = '';
         // 测试开关 start
-        let testSwitch = 1; // 正式的时候，将这个设置为0
+        let testSwitch = 0; // 正式的时候，将这个设置为0
         if (testSwitch == 1) {
             if (expressType < 4) {
                 MonthCode = ''
@@ -312,6 +312,99 @@ module.exports = class extends think.Model {
         latestExpressInfo.MonthCode = MonthCode;
         return latestExpressInfo;
     }
+
+    async getJituMianExpress(orderId, senderInfo, receiverInfo, expressType) {
+        
+        //寄件信息
+        let expressInfo = {
+            customerCode:'',//客户编码（联系出货网点提供）
+            digest:'',//签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
+            txlogisticId:'',//客户订单号（传客户自己系统的订单号）
+            billCode:'',//运单编号,可空
+            expressType:'EZ',//快件类型：EZ(标准快递)
+            orderType:'2',//订单类型（有客户编号为月结）1、 散客；2、月结；
+            serviceType:'01',//服务类型 ：02 门店寄件 ； 01 上门取件
+            deliveryType:'03',//派送类型： 06 代收点自提 05 快递柜自提 04 站点自提 03 派送上门
+            payType:'PP_PM',//支付方式：PP_PM("寄付月结"), CC_CASH("到付现结");
+            sender:{
+                name:'',//寄件人姓名
+                company:'',//寄件公司,N
+                postCode:'',//寄件邮编,N
+                mailBox:'',//寄件邮箱,N
+                mobile:'',//寄件手机（手机和电话二选一必填）
+                phone:'',//寄件电话（手机和电话二选一必填）
+                countryCode:'CHN',//寄件国家三字码（如：中国=CHN、印尼=IDN）
+                prov:'',//寄件省份
+                city:'',//寄件城市
+                area:'',//寄件区域
+                town:'',//寄件乡镇,N
+                street:'',//寄件街道,N
+                address:'',//寄件详细地址（省+市+区县+详细地址）
+
+            },//寄件信息对象
+            receiver:{
+                name:'',//收件人姓名
+                company:'',//收件公司,N
+                postCode:'',//收件邮编,N
+                mailBox:'',//收件邮箱,N
+                mobile:'',//收件手机（手机和电话二选一必填）
+                phone:'',//收件电话（手机和电话二选一必填）
+                countryCode:'CHN',//收件国家三字码（如：中国=CHN、印尼=IDN）
+                prov:'',//收件省份
+                city:'',//收件城市
+                area:'',//收件区域
+                town:'',//收件乡镇,N
+                street:'',//收件街道,N
+                address:'',//收件详细地址（省+市+区县+详细地址）
+            },//收件信息对象
+            /**
+             物品类型（对应订单主表物品类型）:
+                bm000001 文件
+                bm000002 数码产品
+                bm000003 生活用品
+                bm000004 食品
+                bm000005 服饰
+                bm000006 其他
+                bm000007 生鲜类
+                bm000008 易碎品
+                bm000009 液体
+             */
+            goodsType:'bm000006',//
+            weight:'1',//重量，单位kg，范围0.01-30
+            remark:'',//备注
+        };
+
+        const orderExpress = await this.model('order').where({
+            id: orderId
+        }).find();
+        if (think.isEmpty(orderExpress)) {
+            let error = 400;
+            return error;
+        }
+        expressInfo.Remark = orderExpress.remark;        
+        expressInfo.txlogisticId = orderExpress.order_sn;
+
+        //寄件人
+        expressInfo.sender.name = senderInfo.Name;
+        expressInfo.sender.mobile = senderInfo.Tel;
+        expressInfo.sender.prov = senderInfo.ProvinceName;
+        expressInfo.sender.city = senderInfo.CityName;
+        expressInfo.sender.area = senderInfo.ExpAreaName;
+        expressInfo.sender.address = senderInfo.Address;
+
+        //收件人
+        expressInfo.receiver.name = receiverInfo.Name;
+        expressInfo.receiver.mobile = receiverInfo.Tel;
+        expressInfo.receiver.prov = receiverInfo.ProvinceName;
+        expressInfo.receiver.city = receiverInfo.CityName;
+        expressInfo.receiver.area = receiverInfo.ExpAreaName;
+        expressInfo.receiver.address = receiverInfo.Address;
+
+        const ExpressSerivce = think.service('express', 'api');
+        const latestExpressInfo = await ExpressSerivce.mianExpress(expressInfo);
+        return latestExpressInfo;
+    }
+
     async printExpress() {
         const ExpressSerivce = think.service('express', 'api');
         const latestExpressInfo = await ExpressSerivce.buildForm();
