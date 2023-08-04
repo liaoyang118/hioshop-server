@@ -381,7 +381,7 @@ module.exports = class extends think.Model {
             let error = 400;
             return error;
         }
-        expressInfo.Remark = orderExpress.remark;        
+        expressInfo.remark = orderExpress.remark;   
         expressInfo.txlogisticId = orderExpress.order_sn;
 
         //寄件人
@@ -401,7 +401,7 @@ module.exports = class extends think.Model {
         expressInfo.receiver.address = receiverInfo.Address;
 
         const ExpressSerivce = think.service('express', 'api');
-        const latestExpressInfo = await ExpressSerivce.mianExpress(expressInfo);
+        const latestExpressInfo = await ExpressSerivce.jituExpress(expressInfo);
         return latestExpressInfo;
     }
 

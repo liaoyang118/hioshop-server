@@ -109,14 +109,21 @@ module.exports = class extends think.Service {
 
         // 从前台传过来的数据
         let expressInfo = data;
-        // 进行编码，签名
+        
+        //消息签名
+        let digest=this.jituDataSign();
+        data.digest=digest;
+        data.customerCode=think.config('jitu.customerCode');
+
+        // 编码
         const fromData = this.jituFromData(data);
         if (think.isEmpty(fromData)) {
             return expressInfo;
         }
-
-        let nostr=this.jituDataSign();
         let timestamp = Date.now();
+
+        //请求头签名
+        let header_digest=Buffer.from(think.md5(JSON.stringify(data) + think.config('jitu.privateKey'))).toString('base64');
 
         // 请求的参数设置
         const sendOptions = {
@@ -125,12 +132,16 @@ module.exports = class extends think.Service {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
                 'apiAccount': think.config('jitu.apiAccount'),
-                'digest': nostr,
+                'digest': header_digest,
                 'timestamp':timestamp
             },
             form: fromData
         };
         // post请求
+
+        console.log(header_digest);
+        console.log(fromData);
+
         try {
             const requestResult = await rp(sendOptions);
             if (think.isEmpty(requestResult)) {
@@ -164,7 +175,7 @@ module.exports = class extends think.Service {
     //签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
     jituDataSign() {
         let miStr=think.md5(think.config('jitu.customerPwd')+'jadada236t2').toUpperCase();
-        return Buffer.from(think.md5(think.config('jitu.customerNum') + miStr + think.config('jitu.privateKey'))).toString('base64');
+        return Buffer.from(think.md5(think.config('jitu.customerCode') + miStr + think.config('jitu.privateKey'))).toString('base64');
     }
 
     //极兔电子面单
@@ -172,7 +183,7 @@ module.exports = class extends think.Service {
         let mian={};
         let data={
             billCode:billCode,
-            customerCode:think.config('jitu.customerNum'),
+            customerCode:think.config('jitu.customerCode'),
             isPrivacyFlag:true,
             noodleSpecification:1,// 1：76*130mm
         }
@@ -181,9 +192,10 @@ module.exports = class extends think.Service {
         if (think.isEmpty(fromData)) {
             return false;
         }
-
-        let nostr=this.jituDataSign();
+        
         let timestamp = Date.now();
+        //请求头签名
+        let header_digest=Buffer.from(think.md5(JSON.stringify(data) + think.config('jitu.privateKey'))).toString('base64');
 
         // 请求的参数设置
         const sendOptions = {
@@ -192,7 +204,7 @@ module.exports = class extends think.Service {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
                 'apiAccount': think.config('jitu.apiAccount'),
-                'digest': nostr,
+                'digest': header_digest,
                 'timestamp':timestamp
             },
             form: fromData

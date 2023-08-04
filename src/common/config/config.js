@@ -47,7 +47,7 @@ module.exports = {
     jitu:{
         apiAccount:'178337126125932605',
         privateKey:'0258d71b55fc45e3ad7a7f38bf4b201a',
-        customerNum:'J00864418456',
+        customerCode:'J00864418456',
         customerPwd:'ShengWu605',
         orderUrl:'https://uat-openapi.jtexpress.com.cn/webopenplatformapi/api/order/addOrder?uuid=891262b9a01d4818a9e9845c8f52e63e',
         printOrderUrl:'https://uat-openapi.jtexpress.com.cn/webopenplatformapi/api/order/printOrder?uuid=891262b9a01d4818a9e9845c8f52e63e'
