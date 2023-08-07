@@ -381,7 +381,7 @@ module.exports = class extends think.Model {
             let error = 400;
             return error;
         }
-        expressInfo.remark = orderExpress.remark;        
+        expressInfo.remark = orderExpress.remark;   
         expressInfo.txlogisticId = orderExpress.order_sn;
 
         //寄件人

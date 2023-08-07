@@ -11,6 +11,7 @@
   "dependencies": {
     "gm": "^1.23.0",
     "js-base64": "^3.7.5",
+    "js-md5": "^0.7.3",
     "jsonwebtoken": "^8.0.0",
     "jushuitan": "^1.0.2",
     "kcors": "^2.2.1",

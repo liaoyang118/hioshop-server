@@ -1,3 +1,5 @@
+import md5 from 'js-md5';
+
 const rp = require('request-promise');
 const _ = require('lodash');
 const Base64 = require('js-base64').Base64;
@@ -111,24 +113,20 @@ module.exports = class extends think.Service {
         // 从前台传过来的数据
         let expressInfo = data;
 
-        let digest = this.jituDataSign();
-        let header_digest = Buffer.from(think.md5(JSON.stringify(data) + think.config('jitu.privateKey'))).toString('base64');
-
-        console.log('header_digest:'+header_digest);
-
-        let timestamp = Date.now();
-        let _url = think.config('jitu.orderUrl');
-        let _apiAccount = think.config('jitu.apiAccount');
-
-        // 进行编码，签名
-        data.customerCode = think.config('jitu.customerCode');
+        //body消息签名
+        let digest = this.jituBodySign();
         data.digest = digest;
+        data.customerCode = think.config('jitu.customerCode');
 
+        // 编码
         const fromData = this.jituFromData(data);
         if (think.isEmpty(fromData)) {
             return expressInfo;
         }
-        console.log(fromData);
+        let timestamp = Date.now();
+
+        //请求头签名
+        let header_digest = this.jituHeaderSign(data);
 
         // 请求的参数设置
         const sendOptions = {
@@ -136,13 +134,17 @@ module.exports = class extends think.Service {
             url: _url,
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-                'apiAccount': _apiAccount,
+                'apiAccount': think.config('jitu.apiAccount'),
                 'digest': header_digest,
                 'timestamp': timestamp
             },
             form: fromData
         };
         // post请求
+
+        console.log(header_digest);
+        console.log(fromData);
+
         try {
             const requestResult = await rp(sendOptions);
 
@@ -178,14 +180,26 @@ module.exports = class extends think.Service {
         return fromData;
     }
 
-    //签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
-    jituDataSign() {
-        let miStr = think.md5(think.config('jitu.customerPwd') + 'jadada236t2').toUpperCase();
-        console.log(miStr);
-        let md5 = think.md5(think.config('jitu.customerCode') + miStr + think.config('jitu.privateKey'));
-        console.log('md5:'+md5);
-        console.log('Base64:'+Base64.encode(md5));
-        return Buffer.from(md5).toString('base64');
+    //消息体签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
+    jituBodySign() {
+
+        let customerCode = think.config('jitu.customerPwd');
+        let pwd = think.md5(customerCode + 'jadada236t2').toUpperCase();
+        let privatekey = think.config('jitu.privateKey');
+        let str = customerCode + pwd + privatekey;
+        let by = md5.digest(str);//byte[]
+        let b64 = Base64.encode(by);
+        return b64;
+    }
+
+    //消息体签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
+    jituHeaderSign(data) {
+        let privatekey = think.config('jitu.privateKey');
+
+        let str = JSON.stringify(data) + privatekey;
+        let by = md5.digest(str);//byte[]
+        let b64 = Base64.encode(by);
+        return b64;
     }
 
     //极兔电子面单
@@ -197,14 +211,15 @@ module.exports = class extends think.Service {
             isPrivacyFlag: true,
             noodleSpecification: 1,// 1：76*130mm
         }
-        // 进行编码，签名
+        // 进行form编码
         const fromData = this.jituFromData(data);
         if (think.isEmpty(fromData)) {
             return false;
         }
 
-        let nostr = this.jituDataSign();
         let timestamp = Date.now();
+        //请求头签名
+        let header_digest = this.jituHeaderSign(data);
 
         // 请求的参数设置
         const sendOptions = {
@@ -213,7 +228,7 @@ module.exports = class extends think.Service {
             headers: {
                 'content-type': 'application/x-www-form-urlencoded;charset=utf-8',
                 'apiAccount': think.config('jitu.apiAccount'),
-                'digest': nostr,
+                'digest': header_digest,
                 'timestamp': timestamp
             },
             form: fromData
