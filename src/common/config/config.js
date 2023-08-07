@@ -47,18 +47,12 @@ module.exports = {
     jitu:{
         apiAccount:'178337126125932605',
         privateKey:'0258d71b55fc45e3ad7a7f38bf4b201a',
-        customerNum:'J00864418456',
-        customerPwd:'ShengWu605',
+        customerCode:'J0086474299',//J00864418456',
+        customerPwd:'H5CD3zE6',//'ShengWu605',
         orderUrl:'https://uat-openapi.jtexpress.com.cn/webopenplatformapi/api/order/addOrder?uuid=891262b9a01d4818a9e9845c8f52e63e',
         printOrderUrl:'https://uat-openapi.jtexpress.com.cn/webopenplatformapi/api/order/printOrder?uuid=891262b9a01d4818a9e9845c8f52e63e'
     },
 	templateId:{
 		deliveryId:'w6AMCJ0nVWTsFasdasdgnlNlmCf9TTDmG6_U' // 模板id。在订阅消息里设置好后就可以得到
-	},
-    jitu:{
-        apiAccount:'554602859803443215',
-        privateKey:'1e7684ba015349ae90c8bcc94891920e',
-        customerCode:'J00864418456',
-        customerPwd:'ShengWu605'
-    }
+	}
 };
