@@ -127,7 +127,7 @@ module.exports = class extends think.Service {
 
         //请求头签名
         let header_digest = this.jituHeaderSign(data);
-
+        let _url = think.config('jitu.orderUrl');
         // 请求的参数设置
         const sendOptions = {
             method: 'POST',
@@ -141,9 +141,7 @@ module.exports = class extends think.Service {
             form: fromData
         };
         // post请求
-
-        console.log(header_digest);
-        console.log(fromData);
+        //console.log(fromData);
 
         try {
             const requestResult = await rp(sendOptions);
@@ -156,10 +154,9 @@ module.exports = class extends think.Service {
             expressInfo = this.parseMianExpressResult(requestResult);
             if (expressInfo.code == '1') {
                 //获取电子面单
-                let mian = this.jituDianZiMianDan(expressInfo.data.billCode);
-                if (mian.code && mian.code == '1') {
-                    console.log(mian);
-                    expressInfo = mian.data;
+                let mian = await this.jituDianZiMianDan(expressInfo.data.billCode);
+                if (mian.code == '1') {
+                    expressInfo.mian = mian.data;
                 }
             }
 
@@ -172,10 +169,9 @@ module.exports = class extends think.Service {
 
     //转换表单数据
     jituFromData(data) {
-        console.log(data);
         const requestData = JSON.stringify(data); // data：post进来的 // JavaScript 值转换为 JSON 字符串。
         const fromData = {
-            bizContent: encodeURI(requestData)
+            bizContent: requestData //encodeURI(requestData)
         };
         return fromData;
     }
@@ -183,12 +179,15 @@ module.exports = class extends think.Service {
     //消息体签名，Base64(Md5(客户编号+密文+privateKey))，其中密文：MD5(明文密码+jadada236t2) 后大写
     jituBodySign() {
 
-        let customerCode = think.config('jitu.customerPwd');
-        let pwd = think.md5(customerCode + 'jadada236t2').toUpperCase();
+        let customerCode = think.config('jitu.customerCode');
+        let pwd = think.md5(think.config('jitu.customerPwd') + 'jadada236t2').toUpperCase();
         let privatekey = think.config('jitu.privateKey');
         let str = customerCode + pwd + privatekey;
-        let by = md5.digest(str);//byte[]
+        console.log('str:' + str);
+
+        let by = md5.digest(str);
         let b64 = Base64.encode(by);
+        console.log('b64:' + b64);
         return b64;
     }
 
@@ -199,12 +198,14 @@ module.exports = class extends think.Service {
         let str = JSON.stringify(data) + privatekey;
         let by = md5.digest(str);//byte[]
         let b64 = Base64.encode(by);
+        console.log('headerSign:' + b64);
         return b64;
     }
 
     //极兔电子面单
     async jituDianZiMianDan(billCode) {
-        let mian = {};
+        console.log('开始获取电子面单');
+        let result = {};
         let data = {
             billCode: billCode,
             customerCode: think.config('jitu.customerCode'),
@@ -214,13 +215,14 @@ module.exports = class extends think.Service {
         // 进行form编码
         const fromData = this.jituFromData(data);
         if (think.isEmpty(fromData)) {
-            return false;
+            return result;
         }
 
         let timestamp = Date.now();
         //请求头签名
         let header_digest = this.jituHeaderSign(data);
 
+        console.log('miandan-fromData:' + JSON.stringify(fromData));
         // 请求的参数设置
         const sendOptions = {
             method: 'POST',
@@ -236,16 +238,19 @@ module.exports = class extends think.Service {
         // post请求
         try {
             const requestResult = await rp(sendOptions);
+            console.log(JSON.parse(requestResult));
             if (think.isEmpty(requestResult)) {
-                return mian;
+                return result;
             }
-            mian = this.parseMianExpressResult(requestResult);
-            if (expressInfo.code != '1') {
-                return mian;
+            result = this.parseMianExpressResult(requestResult);
+            console.log(result);
+            if (result.code != '1') {
+                return result;
             }
-            return mian;
+            return result;
         } catch (err) {
-            return mian;
+            console.log(err);
+            return result;
         }
     }
 
