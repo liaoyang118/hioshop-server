@@ -145,9 +145,6 @@ module.exports = class extends think.Service {
 
         try {
             const requestResult = await rp(sendOptions);
-
-            console.log(requestResult);
-
             if (think.isEmpty(requestResult)) {
                 return expressInfo;
             }
@@ -155,6 +152,8 @@ module.exports = class extends think.Service {
             if (expressInfo.code == '1') {
                 //获取电子面单
                 let mian = await this.jituDianZiMianDan(expressInfo.data.billCode);
+                console.log('********');
+                console.log(mian);
                 if (mian.code == '1') {
                     expressInfo.mian = mian.data;
                 }
@@ -204,7 +203,6 @@ module.exports = class extends think.Service {
 
     //极兔电子面单
     async jituDianZiMianDan(billCode) {
-        console.log('开始获取电子面单');
         let result = {};
         let data = {
             billCode: billCode,
@@ -212,6 +210,8 @@ module.exports = class extends think.Service {
             isPrivacyFlag: true,
             noodleSpecification: 1,// 1：76*130mm
         }
+        console.log('%%%%%%%%');
+        console.log(data);
         // 进行form编码
         const fromData = this.jituFromData(data);
         if (think.isEmpty(fromData)) {
@@ -222,7 +222,6 @@ module.exports = class extends think.Service {
         //请求头签名
         let header_digest = this.jituHeaderSign(data);
 
-        console.log('miandan-fromData:' + JSON.stringify(fromData));
         // 请求的参数设置
         const sendOptions = {
             method: 'POST',
@@ -238,12 +237,10 @@ module.exports = class extends think.Service {
         // post请求
         try {
             const requestResult = await rp(sendOptions);
-            console.log(JSON.parse(requestResult));
             if (think.isEmpty(requestResult)) {
                 return result;
             }
             result = this.parseMianExpressResult(requestResult);
-            console.log(result);
             if (result.code != '1') {
                 return result;
             }

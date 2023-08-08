@@ -465,7 +465,7 @@ module.exports = class extends Base {
         const latestExpressInfo = await this.model('order_express').getJituMianExpress(orderId, senderInfo, receiverInfo, expressType);
         console.log('lastExpressInfo++++++++++++++++++++++');
         console.log(latestExpressInfo);
-        if (latestExpressInfo.ResultCode == 100) {
+        if (latestExpressInfo.code == '1') {
             // 获取快递单号成功，然后存入order_express中
             this.orderExpressAdd(latestExpressInfo, orderId)
         }
